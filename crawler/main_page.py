@@ -13,7 +13,7 @@ class Main:
     def __init__(self, parameters=None):
         self.baseURL = None
         self.fields_name = None
-        self.fields = None
+        self.fields = []
         self.load_variables(parameters)
         self.crawl_fields()
 
@@ -36,6 +36,7 @@ class Main:
         for a in type_list.find_all('a'):
             url = a.get('href')
             text = a.get_text()
-            print(text)
             if text in self.fields_name:
-                self.fields.append(Field(text, self.baseURL + url))
+                self.fields.append(Field(text, url, self.baseURL))
+
+Main()

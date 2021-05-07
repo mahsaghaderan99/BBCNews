@@ -1,5 +1,5 @@
 Crawl:
-  BASEURL: "https://www.bbc.com "
+  BASEURL: "https://www.bbc.com"
   FIELDS:
     - 'ایران'
     - 'هنر'
