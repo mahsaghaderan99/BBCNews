@@ -1,0 +1,8 @@
+Crawl:
+  BASEURL: "https://www.bbc.com"
+  FIELDS:
+    - 'ایران'
+    - 'هنر'
+    - 'ورزش'
+    - 'اقتصاد'
+    - 'دانش'
