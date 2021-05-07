@@ -39,4 +39,3 @@ class Main:
             print(text)
             if text in self.fields_name:
                 self.fields.append(Field(text, self.baseURL + url))
-    
