@@ -26,15 +26,17 @@ class Field:
                 header = news.find_all('header')
                 if len(header) > 0:
                     header = header[0]
-                    print(self.page_number)
                     link = header.find_all('a')
                     if len(link) > 0 :
                         link = link[0]
                         url = link.get('href')
-                        self.news_list.append(News(self.name, url, self.baseURL))
+                        the_news = News(self.name, self.baseURL+url)
+                        html = the_news.get_news_html()
+                        the_news.crawl_news(html)
+                        self.news_list.append(the_news)
                     else:
-                        # This is the news, info should be save right here!
-                        pass
+                        the_news = News(self.name, self.baseURL + url)
+                        the_news.crawl_news(news)
             is_next_page = self.go_next_page()
 
     def go_next_page(self):
@@ -44,6 +46,7 @@ class Field:
             return True
         return False
 
+    # This part should be fix.
     def find_max_page_number(self, soup):
         max_number = 2
         return max_number
