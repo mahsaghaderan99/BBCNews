@@ -49,7 +49,7 @@ class Field:
         return False
 
     def save_page(self):
-        with open('dataset.csv', 'a') as fd:
+        with open('../data/dataset.csv', 'a') as fd:
             writer = csv.writer(fd)
             for news in self.news_list:
                 the_row = [news.url, news.title, news.headline, news.body]

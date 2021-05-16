@@ -43,8 +43,8 @@ class Main:
                 max_page = self.max_page[self.fields_name.index(text)]
                 self.fields.append(Field(text, url, self.baseURL, max_page))
 
-if not os.path.exists('../dataset.csv'):
-    with open('../dataset.csv', 'w', newline='') as csvfile:
+if not os.path.exists('../data/dataset.csv'):
+    with open('../data/dataset.csv', 'w', newline='') as csvfile:
         fieldnames = ['url', 'title', 'headline', 'body']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
