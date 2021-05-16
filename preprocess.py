@@ -24,7 +24,7 @@ class Preprocess:
             punkts = configs['PUNKS']
             pkt = {}
             for p in punkts:
-                pkt[p] =  ' '
+                pkt[p] = ' '
             self.punct = str.maketrans(pkt)
 
     def load_raw_data(self):
