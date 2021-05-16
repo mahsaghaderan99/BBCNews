@@ -17,8 +17,17 @@ class News:
         return main_role
 
     def crawl_news(self, html):
-        dir_rtl = html.find(dir='rtl').section.decompose()
-        self.headline = dir_rtl.find_all('h1')[0]
-        self.body = dir_rtl.find_all('p').text
+        dir_rtl = html
+        try:
+            dir_rtl = html.find(dir='rtl').section.decompose()
+        except:
+            pass
+        self.headline = dir_rtl.find_all('h1')
+        if self.headline == []:
+            self.headline = dir_rtl.find_all('h3')[0].text
+        else:
+            self.headline = self.headline[0].text
+        self.body = ''
+        self.body = self.body.join([text.text for text in dir_rtl.find_all('p')])
 
 

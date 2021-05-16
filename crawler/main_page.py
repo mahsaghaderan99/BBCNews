@@ -2,6 +2,8 @@ import requests
 import yaml
 from field_page import Field
 from bs4 import BeautifulSoup
+import os
+import csv
 
 '''
     Crawl each field url from main page.
@@ -23,6 +25,7 @@ class Main:
                 configs = yaml.full_load(conf_file)['Crawl']
                 self.fields_name = configs['FIELDS']
                 self.baseURL = configs['BASEURL']
+                self.max_page = configs['MAXPAGE']
         else:
             self.fields_name = parameters.fields
             self.baseURL = parameters.baseURL
@@ -37,6 +40,12 @@ class Main:
             url = a.get('href')
             text = a.get_text()
             if text in self.fields_name:
-                self.fields.append(Field(text, url, self.baseURL))
+                max_page = self.max_page[self.fields_name.index(text)]
+                self.fields.append(Field(text, url, self.baseURL, max_page))
 
+if not os.path.exists('../dataset.csv'):
+    with open('../dataset.csv', 'w', newline='') as csvfile:
+        fieldnames = ['url', 'title', 'headline', 'body']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 Main()
