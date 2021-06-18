@@ -98,7 +98,7 @@ class Statistics:
         plt.xlabel(x_label)
         plt.xticks(rotation='vertical')
         plt.bar(fields, values)
-        plt.savefig('../statistics/{}.png'.format(file_name))
+        plt.savefig('../reports/phase1/{}.png'.format(file_name))
         plt.close()
 
     def class_distribution(self):
