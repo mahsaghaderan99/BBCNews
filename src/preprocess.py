@@ -28,7 +28,7 @@ class Preprocess:
             self.punct = str.maketrans(pkt)
 
     def load_raw_data(self):
-        with open('./data/dataset.csv', 'r') as f:
+        with open('../data/dataset.csv', 'r') as f:
             spamreader = csv.reader(f, delimiter=',', quotechar='|')
             for row in spamreader:
                 if len(row) == 1:
@@ -93,7 +93,7 @@ class Preprocess:
         headlines = self.remove_stopwords(h)
         for i in range(len(self.news)):
             self.news[i].healines = headlines[i]
-        with open('./data/dataset_clean.csv', 'a') as csvfile:
+        with open('../data/dataset_clean.csv', 'a') as csvfile:
             fieldnames = ['url', 'title', 'headline', 'body']
             writer = csv.writer(csvfile)
             writer.writerow(fieldnames)
