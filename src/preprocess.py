@@ -2,7 +2,6 @@ import stanza
 import numpy as np
 import csv
 import yaml
-
 class News:
     pass
 
