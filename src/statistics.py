@@ -63,14 +63,14 @@ class Statistics:
         self.tot_dict = {}
 
     def load_preprocessed_data(self):
-        with open('../data/dataset_clean.csv', 'r') as f:
+        with open('data/dataset_clean.csv', 'r') as f:
             spamreader = csv.reader(f, delimiter=',', quotechar='|')
             for row in spamreader:
                 if row[0] != 'url':
                     self.fields[row[1]].news.append((row[2] + row[3]).replace('.',' '))
 
     def load_raw_data(self):
-        with open('../data/dataset.csv', 'r') as f:
+        with open('data/dataset.csv', 'r') as f:
             spamreader = csv.reader(f, delimiter=',', quotechar='|')
             pref = ''
             for row in spamreader:
@@ -82,7 +82,7 @@ class Statistics:
                         self.fields[row[1]].news.append(row[2] + row[3])
 
     def generate_fields(self):
-        with open('./config') as conf_file:
+        with open('src/config') as conf_file:
             configs = yaml.full_load(conf_file)['Crawl']
             self.fields_name = configs['FIELDS'][1:]
         for field in self.fields_name:
@@ -98,7 +98,7 @@ class Statistics:
         plt.xlabel(x_label)
         plt.xticks(rotation='vertical')
         plt.bar(fields, values)
-        plt.savefig('../reports/phase1/{}.png'.format(file_name))
+        plt.savefig('reports/phase1/{}.png'.format(file_name))
         plt.close()
 
     def class_distribution(self):
