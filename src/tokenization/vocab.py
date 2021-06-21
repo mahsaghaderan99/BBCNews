@@ -198,8 +198,9 @@ if __name__ == '__main__':
         os.mkdir('src/tokenization/working_dir/outs')
     if not os.path.exists('src/tokenization/working_dir/words_outs'):
         os.mkdir('src/tokenization/working_dir/words_outs')
-    type_tokens = 'subword' #'word'/'subword'
+    type_tokens = 'word' #'word'/'subword'
     out_dir_name = 'outs' if type_tokens == 'subword' else 'words_outs'
+    model_reports = []
     for vocab_size in vocab_sizes:
         for i in range(1, 6):
             if not os.path.exists(dest + '/{}/{}_{}'.format(out_dir_name,i, vocab_size)):
@@ -214,8 +215,18 @@ if __name__ == '__main__':
             with open( 'src/tokenization/working_dir/sentences_dev1.txt', 'r') as dev_data_file:
                 dev_sents = [['▁'+de for de in d.split(' ') ] for d in dev_data_file]
             dev_token = vocab.src.words2indices(dev_sents)
+            dev_token_np = []
+            for devtok in dev_token:
+                for tok in devtok:
+                    dev_token_np.append(tok)
+            dev_token_np = np.array(dev_token_np)
+            unk_num = np.count_nonzero(dev_token_np == 3)
+            model_reports.append("-Vocab size:{}\ti:{}\tNum tokens= {}\tNum unks:{}\tunkp:{}\n"\
+                .format(vocab_size,i,dev_token_np.shape[0],100*unk_num,unk_num/dev_token_np.shape[0]))
             with open(dest + '/{}/{}_{}/dev.json'.format(out_dir_name,i,vocab_size) , 'a') as devfile:
                 json.dump(dict(tokens=dev_token), devfile,  ensure_ascii=False)
+    with open("reports/word2vec_{}.txt".format(type_tokens),'a') as report_file:
+        report_file.writelines(model_reports)
 
 
     vocab_sizes = 10000
