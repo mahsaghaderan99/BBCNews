@@ -22,33 +22,13 @@ nltk.download('punkt')
 
 
 def pad_sents(sents, pad_token):
-    """ Pad list of sentences according to the longest sentence in the batch.
-        The paddings should be at the end of each sentence.
-    @param sents (list[list[str]]): list of sentences, where each sentence
-                                    is represented as a list of words
-    @param pad_token (str): padding token
-    @returns sents_padded (list[list[str]]): list of sentences where sentences shorter
-        than the max length sentence are padded out with the pad_token, such that
-        each sentences in the batch now has equal length.
-    """
-    sents_padded = []
-
-    ### YOUR CODE HERE (~6 Lines)
     maxlen = max([len(sent) for sent in sents])
     sents_padded = [sent + (maxlen - len(sent))*[pad_token] for sent in sents]
-    ### END YOUR CODE
     sents_padded = list(np.array(sents_padded).T)
     return sents_padded
 
 
 def read_corpus(file_path, source, vocab_size=2500):
-    """ Read file, where each sentence is dilineated by a `\n`.
-    @param file_path (str): path to file containing corpus
-    @param source (str): "tgt" or "src" indicating whether text
-        is of the source language or target language
-    @param vocab_size (int): number of unique subwords in
-        vocabulary when reading and tokenizing
-    """
     data = []
     sp = spm.SentencePieceProcessor()
     sp.load('{}.model'.format(source))
@@ -65,11 +45,6 @@ def read_corpus(file_path, source, vocab_size=2500):
 
 
 def autograder_read_corpus(file_path, source):
-    """ Read file, where each sentence is dilineated by a `\n`.
-    @param file_path (str): path to file containing corpus
-    @param source (str): "tgt" or "src" indicating whether text
-        is of the source language or target language
-    """
     data = []
     for line in open(file_path):
         sent = nltk.word_tokenize(line)
@@ -82,11 +57,6 @@ def autograder_read_corpus(file_path, source):
 
 
 def batch_iter(data, batch_size, shuffle=False):
-    """ Yield batches of source and target sentences reverse sorted by length (largest to smallest).
-    @param data (list of (src_sent, tgt_sent)): list of tuples containing source and target sentence
-    @param batch_size (int): batch size
-    @param shuffle (boolean): whether to randomly shuffle the dataset
-    """
     batch_num = math.ceil(len(data) / batch_size)
     index_array = list(range(len(data)))
 
