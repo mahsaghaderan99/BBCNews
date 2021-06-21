@@ -48,7 +48,9 @@ class VocabEntry(object):
         self.id2word = {v: k for k, v in self.word2id.items()}
 
     def __getitem__(self, word):
-        return self.word2id.get(word, self.unk_id)
+        if word in self.word2id:
+            return self.word2id[word]
+        return self.unk_id
 
     def __contains__(self, word):
         return word in self.word2id
@@ -134,23 +136,15 @@ class Vocab(object):
         return 'Vocab(source %d words)' % (len(self.src))
 
 
-def get_vocab_list(file_path_src, source, vocab_size):
-    spm.SentencePieceTrainer.train(input=file_path_src, model_prefix=source, vocab_size=vocab_size, )     # train the spm model
+def get_vocab_list(type_tokens,file_path_src, source, vocab_size):
+    if type_tokens == 'word':
+        spm.SentencePieceTrainer.train(input=file_path_src, model_prefix=source, vocab_size=vocab_size,model_type='word',pad_id=0,unk_id=3,bos_id=-1)     # train the spm model
+    else:
+        spm.SentencePieceTrainer.train(input=file_path_src, model_prefix=source, vocab_size=vocab_size,unk_id=3,bos_id=-1)  # train the spm model
     sp = spm.SentencePieceProcessor()                                                               # create an instance; this saves .model and .vocab files
     sp.load('{}.model'.format(source))                                                              # loads tgt.model or src.model
     sp_list = [sp.id_to_piece(piece_id) for piece_id in range(sp.get_piece_size())]                 # this is the list of subwords
     return sp_list
-
-def eval_dev(dest_path,source):
-    sp = spm.SentencePieceProcessor()  # create an instance; this saves .model and .vocab files
-    sp.load('{}.model'.format(source))  # loads tgt.model or src.model
-    sent_dev = []
-    with open(dest_path, 'r') as outfile:
-        sent_dev = [sent for sent in outfile]
-    tokenized = sp.Encode(input=sent_dev, out_type=str)
-    # print(tokenized[:20])
-    # print(outtext)
-    return tokenized
 
 def generate_five_set(src_path,dest_path):
     # save 5 shuffled file in temp directory
@@ -167,6 +161,15 @@ def generate_five_set(src_path,dest_path):
         with open(dest_path+'/sentences_dev{}.txt'.format(i), 'a') as out_file:
             out_file.writelines(all_text[train_num:])
 
+
+# def eval_dev(dest_path,source):
+#     sp = spm.SentencePieceProcessor()  # create an instance; this saves .model and .vocab files
+#     sp.load('{}.model'.format(source))  # loads tgt.model or src.model
+#     sent_dev = []
+#     with open(dest_path, 'r') as outfile:
+#         sent_dev = [sent for sent in outfile]
+#     tokenized = sp.Encode(input=sent_dev, out_type=int)
+#     return tokenized
 
 if __name__ == '__main__':
     if not os.path.exists('data/dataset_noen.txt'):
@@ -186,32 +189,37 @@ if __name__ == '__main__':
 
     src = 'data/dataset_noen.txt'
     dest = 'src/tokenization/working_dir'
-    vocab_sizes = [15000, 10000, 5000, 1000]
+    vocab_sizes = [15000,10000,5000,1000]
 
     if not os.path.exists('src/tokenization/working_dir'):
         os.mkdir('src/tokenization/working_dir')
         generate_five_set(src, dest)
     if not os.path.exists('src/tokenization/working_dir/outs'):
         os.mkdir('src/tokenization/working_dir/outs')
+    if not os.path.exists('src/tokenization/working_dir/words_outs'):
+        os.mkdir('src/tokenization/working_dir/words_outs')
+    type_tokens = 'subword' #'word'/'subword'
+    out_dir_name = 'outs' if type_tokens == 'subword' else 'words_outs'
     for vocab_size in vocab_sizes:
-        # for i in range(1, 6):
-        for i in range(1, 5):
-            if not os.path.exists(dest + '/outs/{}_{}'.format(i, vocab_size)):
-                os.mkdir(dest + '/outs/{}_{}'.format(i, vocab_size))
+        for i in range(1, 6):
+            if not os.path.exists(dest + '/{}/{}_{}'.format(out_dir_name,i, vocab_size)):
+                os.mkdir(dest + '/{}/{}_{}'.format(out_dir_name,i, vocab_size))
 
             sent_path_train = dest+'/sentences_train{}.txt'.format(i)
             sent_path_dev = dest + '/sentences_dev{}.txt'.format(i)
-            sents = get_vocab_list(sent_path_train, source=dest+'/outs/{}_{}/src{}_{}'.format(i, vocab_size,i, vocab_size), vocab_size=vocab_size)
+            sents = get_vocab_list(type_tokens,sent_path_train, source=dest+'/{}/{}_{}/src{}_{}'.format(out_dir_name,i, vocab_size,i, vocab_size), vocab_size=vocab_size)
             vocab = Vocab.build(sents)
-            final_vocab_file = dest + '/outs/{}_{}/vocab_file.json'.format(i, vocab_size)
+            final_vocab_file = dest + '/{}/{}_{}/vocab_file.json'.format(out_dir_name,i, vocab_size)
             vocab.save(final_vocab_file)
-            dev_token = eval_dev(sent_path_dev, source=dest+'/outs/{}_{}/src{}_{}'.format(i, vocab_size,i, vocab_size))
-            with open(dest + '/outs/{}_{}/dev.json'.format(i,vocab_size) , 'a') as devfile:
+            with open( 'src/tokenization/working_dir/sentences_dev1.txt', 'r') as dev_data_file:
+                dev_sents = [['▁'+de for de in d.split(' ') ] for d in dev_data_file]
+            dev_token = vocab.src.words2indices(dev_sents)
+            with open(dest + '/{}/{}_{}/dev.json'.format(out_dir_name,i,vocab_size) , 'a') as devfile:
                 json.dump(dict(tokens=dev_token), devfile,  ensure_ascii=False)
-            # print(len(dev_token))
+
 
     vocab_sizes = 10000
-    sents = get_vocab_list(src, source='models/tokenization/src', vocab_size=vocab_size)
+    sents = get_vocab_list(type_tokens,src, source='models/tokenization/src{}'.format(type_tokens), vocab_size=vocab_size)
     vocab = Vocab.build(sents)
-    final_vocab_file = 'models/tokenization/vocab_file.json'
+    final_vocab_file = 'models/tokenization/vocab_file_{}.json'.format(type_tokens)
     vocab.save(final_vocab_file)
