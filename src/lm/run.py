@@ -1,11 +1,50 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+CS224N 2020-21: Homework 4
+run.py: Run Script for Simple NMT Model
+Pencheng Yin <pcyin@cs.cmu.edu>
+Sahil Chopra <schopra8@stanford.edu>
+Vera Lin <veralin@stanford.edu>
+
+Usage:
+    run.py train --train-src=<file> --train-tgt=<file> --dev-src=<file> --dev-tgt=<file> --vocab=<file> [options]
+    run.py decode [options] MODEL_PATH TEST_SOURCE_FILE OUTPUT_FILE
+    run.py decode [options] MODEL_PATH TEST_SOURCE_FILE TEST_TARGET_FILE OUTPUT_FILE
+
+Options:
+    -h --help                               show this screen.
+    --cuda                                  use GPU
+    --train-src=<file>                      train source file
+    --train-tgt=<file>                      train target file
+    --dev-src=<file>                        dev source file
+    --dev-tgt=<file>                        dev target file
+    --vocab=<file>                          vocab file
+    --seed=<int>                            seed [default: 0]
+    --batch-size=<int>                      batch size [default: 32]
+    --embed-size=<int>                      embedding size [default: 256]
+    --hidden-size=<int>                     hidden size [default: 256]
+    --clip-grad=<float>                     gradient clipping [default: 5.0]
+    --log-every=<int>                       log every [default: 10]
+    --max-epoch=<int>                       max epoch [default: 30]
+    --input-feed                            use input feeding
+    --patience=<int>                        wait for how many iterations to decay learning rate [default: 5]
+    --max-num-trial=<int>                   terminate training after how many trials [default: 5]
+    --lr-decay=<float>                      learning rate decay [default: 0.5]
+    --beam-size=<int>                       beam size [default: 5]
+    --sample-size=<int>                     sample size [default: 5]
+    --lr=<float>                            learning rate [default: 0.001]
+    --uniform-init=<float>                  uniformly initialize all parameters [default: 0.1]
+    --save-to=<file>                        model save path [default: model.bin]
+    --valid-niter=<int>                     perform validation after how many iterations [default: 2000]
+    --dropout=<float>                       dropout [default: 0.3]
+    --max-decoding-time-step=<int>          maximum number of decoding time steps [default: 70]
+"""
 import math
 import sys
 import pickle
 import time
-
 
 from docopt import docopt
 # from nltk.translate.bleu_score import corpus_bleu, sentence_bleu, SmoothingFunction
@@ -22,6 +61,12 @@ import torch.nn.utils
 
 
 def evaluate_ppl(model, dev_data, batch_size=32):
+    """ Evaluate perplexity on dev sentences
+    @param model (NMT): NMT Model
+    @param dev_data (list of (src_sent, tgt_sent)): list of tuples containing source and target sentence
+    @param batch_size (batch size)
+    @returns ppl (perplixty on dev sentences)
+    """
     was_training = model.training
     model.eval()
 
@@ -46,10 +91,15 @@ def evaluate_ppl(model, dev_data, batch_size=32):
 
 
 def compute_corpus_level_bleu_score(references: List[List[str]], hypotheses: List[Hypothesis]) -> float:
+    """ Given decoding results and reference sentences, compute corpus-level BLEU score.
+    @param references (List[List[str]]): a list of gold-standard reference target sentences
+    @param hypotheses (List[Hypothesis]): a list of hypotheses, one for each reference
+    @returns bleu_score: corpus-level BLEU score
+    """
     # remove the start and end tokens
     if references[0][0] == '<s>':
         references = [ref[1:-1] for ref in references]
-    
+
     # detokenize the subword pieces to get full sentences
     detokened_refs = [''.join(pieces).replace('▁', ' ') for pieces in references]
     detokened_hyps = [''.join(hyp.value).replace('▁', ' ') for hyp in hypotheses]
@@ -61,11 +111,14 @@ def compute_corpus_level_bleu_score(references: List[List[str]], hypotheses: Lis
 
 
 def train(args: Dict):
-    train_data_src = read_corpus(args['--train-src'], source='src', vocab_size=21000)       
-    train_data_tgt = read_corpus(args['--train-tgt'], source='tgt', vocab_size=8000)
+    """ Train the NMT Model.
+    @param args (Dict): args from cmd line
+    """
+    train_data_src = read_corpus(args['--train-src'], source='models/tokenization/srcword', vocab_size=10000)
+    train_data_tgt = read_corpus(args['--train-tgt'], source='models/tokenization/srcword', vocab_size=10000)
 
-    dev_data_src = read_corpus(args['--dev-src'], source='src', vocab_size=3000)
-    dev_data_tgt = read_corpus(args['--dev-tgt'], source='tgt', vocab_size=2000)
+    dev_data_src = read_corpus(args['--dev-src'], source='models/tokenization/srcword', vocab_size=10000)
+    dev_data_tgt = read_corpus(args['--dev-tgt'], source='models/tokenization/srcword', vocab_size=10000)
 
     train_data = list(zip(train_data_src, train_data_tgt))
     dev_data = list(zip(dev_data_src, dev_data_tgt))
@@ -78,7 +131,7 @@ def train(args: Dict):
 
     vocab = Vocab.load(args['--vocab'])
 
-    # model = NMT(embed_size=int(args['--embed-size']),                                 
+    # model = NMT(embed_size=int(args['--embed-size']),
     #             hidden_size=int(args['--hidden-size']),
     #             dropout_rate=float(args['--dropout']),
     #             vocab=vocab)
@@ -87,7 +140,6 @@ def train(args: Dict):
                 hidden_size=1024,
                 dropout_rate=float(args['--dropout']),
                 vocab=vocab)
-    
 
     model.train()
 
@@ -97,8 +149,8 @@ def train(args: Dict):
         for p in model.parameters():
             p.data.uniform_(-uniform_init, uniform_init)
 
-    vocab_mask = torch.ones(len(vocab.tgt))
-    vocab_mask[vocab.tgt['<pad>']] = 0
+    vocab_mask = torch.ones(len(vocab.src))
+    vocab_mask[vocab.src['<pad>']] = 0
 
     device = torch.device("cuda:0" if args['--cuda'] else "cpu")
     print('use device: %s' % device, file=sys.stderr)
@@ -124,7 +176,7 @@ def train(args: Dict):
 
             batch_size = len(src_sents)
 
-            example_losses = -model(src_sents, tgt_sents) # (batch_size,)
+            example_losses = -model(src_sents, tgt_sents)  # (batch_size,)
             batch_loss = example_losses.sum()
             loss = batch_loss / batch_size
 
@@ -149,10 +201,13 @@ def train(args: Dict):
                 print('epoch %d, iter %d, avg. loss %.2f, avg. ppl %.2f ' \
                       'cum. examples %d, speed %.2f words/sec, time elapsed %.2f sec' % (epoch, train_iter,
                                                                                          report_loss / report_examples,
-                                                                                         math.exp(report_loss / report_tgt_words),
+                                                                                         math.exp(
+                                                                                             report_loss / report_tgt_words),
                                                                                          cum_examples,
-                                                                                         report_tgt_words / (time.time() - train_time),
-                                                                                         time.time() - begin_time), file=sys.stderr)
+                                                                                         report_tgt_words / (
+                                                                                                     time.time() - train_time),
+                                                                                         time.time() - begin_time),
+                      file=sys.stderr)
 
                 train_time = time.time()
                 report_loss = report_tgt_words = report_examples = 0.
@@ -160,9 +215,11 @@ def train(args: Dict):
             # perform validation
             if train_iter % valid_niter == 0:
                 print('epoch %d, iter %d, cum. loss %.2f, cum. ppl %.2f cum. examples %d' % (epoch, train_iter,
-                                                                                         cum_loss / cum_examples,
-                                                                                         np.exp(cum_loss / cum_tgt_words),
-                                                                                         cum_examples), file=sys.stderr)
+                                                                                             cum_loss / cum_examples,
+                                                                                             np.exp(
+                                                                                                 cum_loss / cum_tgt_words),
+                                                                                             cum_examples),
+                      file=sys.stderr)
 
                 cum_loss = cum_examples = cum_tgt_words = 0.
                 valid_num += 1
@@ -170,7 +227,7 @@ def train(args: Dict):
                 print('begin validation ...', file=sys.stderr)
 
                 # compute dev. ppl and bleu
-                dev_ppl = evaluate_ppl(model, dev_data, batch_size=128)   # dev batch size can be a bit larger
+                dev_ppl = evaluate_ppl(model, dev_data, batch_size=128)  # dev batch size can be a bit larger
                 valid_metric = -dev_ppl
 
                 print('validation: iter %d, dev. ppl %f' % (train_iter, dev_ppl), file=sys.stderr)
@@ -240,7 +297,7 @@ def decode(args: Dict[str, str]):
         model = model.to(torch.device("cuda:0"))
 
     hypotheses = beam_search(model, test_data_src,
-                            #  beam_size=int(args['--beam-size']),                      
+                             #  beam_size=int(args['--beam-size']),
                              beam_size=10,
                              max_decoding_time_step=int(args['--max-decoding-time-step']))
 
@@ -256,7 +313,8 @@ def decode(args: Dict[str, str]):
             f.write(hyp_sent + '\n')
 
 
-def beam_search(model: NMT, test_data_src: List[List[str]], beam_size: int, max_decoding_time_step: int) -> List[List[Hypothesis]]:
+def beam_search(model: NMT, test_data_src: List[List[str]], beam_size: int, max_decoding_time_step: int) -> List[
+    List[Hypothesis]]:
     """ Run beam search to construct hypotheses for a list of src-language sentences.
     @param model (NMT): NMT Model
     @param test_data_src (List[List[str]]): List of sentences (words) in source language, from test set.
@@ -270,7 +328,8 @@ def beam_search(model: NMT, test_data_src: List[List[str]], beam_size: int, max_
     hypotheses = []
     with torch.no_grad():
         for src_sent in tqdm(test_data_src, desc='Decoding', file=sys.stdout):
-            example_hyps = model.beam_search(src_sent, beam_size=beam_size, max_decoding_time_step=max_decoding_time_step)
+            example_hyps = model.beam_search(src_sent, beam_size=beam_size,
+                                             max_decoding_time_step=max_decoding_time_step)
 
             hypotheses.append(example_hyps)
 
@@ -285,7 +344,9 @@ def main():
     args = docopt(__doc__)
 
     # Check pytorch version
-    assert(torch.__version__ >= "1.0.0"), "Please update your installation of PyTorch. You have {} and you should have version 1.0.0".format(torch.__version__)
+    assert (
+                torch.__version__ >= "1.0.0"), "Please update your installation of PyTorch. You have {} and you should have version 1.0.0".format(
+        torch.__version__)
 
     # seed the random number generators
     seed = int(args['--seed'])
