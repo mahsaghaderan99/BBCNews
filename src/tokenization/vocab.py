@@ -212,7 +212,7 @@ if __name__ == '__main__':
             vocab = Vocab.build(sents)
             final_vocab_file = dest + '/{}/{}_{}/vocab_file.json'.format(out_dir_name,i, vocab_size)
             vocab.save(final_vocab_file)
-            with open( 'src/tokenization/working_dir/sentences_dev1.txt', 'r') as dev_data_file:
+            with open( 'src/tokenization/working_dir/sentences_dev{}.txt'.format(i), 'r') as dev_data_file:
                 dev_sents = [['▁'+de for de in d.split(' ') ] for d in dev_data_file]
             dev_token = vocab.src.words2indices(dev_sents)
             dev_token_np = []
