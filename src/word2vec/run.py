@@ -11,6 +11,9 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import time
+import os
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 from word2vec import *
 from sgd import *
@@ -87,27 +90,37 @@ def word2vec_model(label):
         axis=0)
     return wordVectors,tokens,wordVectors
 
-for label in labels[:1]:
+for label in labels:
     print(label)
     word2vect_vectors,tokens,wordVectors = word2vec_model(label)
     # with open('models/word2vec/{}.wordtovec.npy', 'a') as outfile:
     #     np.save(outfile, word2vect_vectors)
 
-    visualizeWords = ['روحانی','طالبان','اوین','نامداری','خاوران','فرونشست','خلوص','فایل','نوری']
-
-    visualizeIdx = [tokens[word] for word in visualizeWords]
+    with open('reports/top_words/{}.txt'.format(label), 'r') as top_file:
+        visualizeWords = [word.replace('\n', '') for word in top_file.readlines()]
+    visualizeIdx = []
+    mywords = []
+    for word in visualizeWords:
+        if word in tokens:
+             visualizeIdx.append(tokens[word])
+             mywords.append(word)
+    visualizeWords = mywords
+    visualizeIdx = visualizeIdx[:15]
+    visualizeWords = visualizeWords[:15]
     visualizeVecs = wordVectors[visualizeIdx, :]
     temp = (visualizeVecs - np.mean(visualizeVecs, axis=0))
     covariance = 1.0 / len(visualizeIdx) * temp.T.dot(temp)
     U, S, V = np.linalg.svd(covariance)
     coord = temp.dot(U[:, 0:2])
-    print("here")
-    for i in range(len(visualizeWords)):
-        plt.text(coord[i, 0], coord[i, 1], visualizeWords[i],
+    for i in range(len(visualizeIdx)):
+        plt.text(coord[i, 0], coord[i, 1],get_display( arabic_reshaper.reshape('{}'.format(visualizeWords[i]))),
                  bbox=dict(facecolor='green', alpha=0.1))
 
-
+    #get_display(arabic_reshaper.reshape(visualizeWords[i].decode('utf8')))
     plt.xlim((np.min(coord[:, 0]), np.max(coord[:, 0])))
     plt.ylim((np.min(coord[:, 1]), np.max(coord[:, 1])))
 
-    plt.savefig('word_vectors_{}.png'.format(label))
+    if not os.path.exists('reports/word2vec'):
+        os.mkdir('reports/word2vec')
+    print('saving ,',label)
+    plt.savefig('reports/word2vec/word_vectors_{}.png'.format(label))
