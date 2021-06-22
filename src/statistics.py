@@ -198,7 +198,7 @@ class Statistics:
                 if not os.path.exists('reports/top_words') :
                     os.mkdir('reports/top_words')
                 with open('reports/top_words/{}.txt'.format(field),'a') as ff:
-                    ff.writelines([key+'\n' for key in keys])
+                    ff.writelines([key+'\n' for key in top_ten])
 
                 print("TOP 10", field)
                 print("keys", top_ten)
