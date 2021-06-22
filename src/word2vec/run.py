@@ -11,6 +11,9 @@ import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import time
+import os
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 from word2vec import *
 from sgd import *
@@ -74,7 +77,7 @@ def word2vec_model(label):
     wordVectors = sgd(
         lambda vec: word2vec_sgd_wrapper(skipgram, tokens, vec, dataset, C,
                                          negSamplingLossAndGradient),
-        wordVectors, 0.3, 40000, None, True, PRINT_EVERY=10)
+        wordVectors, 0.3, 40000, None, True, PRINT_EVERY=10,label=label)
     # Note that normalization is not called here. This is not a bug,
     # normalizing during training loses the notion of length.
 
@@ -85,32 +88,39 @@ def word2vec_model(label):
     wordVectors = np.concatenate(
         (wordVectors[:nWords, :], wordVectors[nWords:, :]),
         axis=0)
-    return wordVectors
-
+    return wordVectors,tokens,wordVectors
 
 for label in labels:
-    word2vect_vectors = word2vec_model(label)
-    with open('models/word2vec/{}.wordtovec.npy', 'a') as outfile:
-        np.save(outfile, word2vect_vectors)
+    print(label)
+    word2vect_vectors,tokens,wordVectors = word2vec_model(label)
+    # with open('models/word2vec/{}.wordtovec.npy', 'a') as outfile:
+    #     np.save(outfile, word2vect_vectors)
 
-# visualizeWords = [
-#     "great", "cool", "brilliant", "wonderful", "well", "amazing",
-#     "worth", "sweet", "enjoyable", "boring", "bad", "dumb",
-#     "annoying", "female", "male", "queen", "king", "man", "woman", "rain", "snow",
-#     "hail", "coffee", "tea"]
-#
-# visualizeIdx = [tokens[word] for word in visualizeWords]
-# visualizeVecs = wordVectors[visualizeIdx, :]
-# temp = (visualizeVecs - np.mean(visualizeVecs, axis=0))
-# covariance = 1.0 / len(visualizeIdx) * temp.T.dot(temp)
-# U, S, V = np.linalg.svd(covariance)
-# coord = temp.dot(U[:, 0:2])
-#
-# for i in range(len(visualizeWords)):
-#     plt.text(coord[i, 0], coord[i, 1], visualizeWords[i],
-#              bbox=dict(facecolor='green', alpha=0.1))
-#
-# plt.xlim((np.min(coord[:, 0]), np.max(coord[:, 0])))
-# plt.ylim((np.min(coord[:, 1]), np.max(coord[:, 1])))
-#
-# plt.savefig('word_vectors.png')
+    with open('reports/top_words/{}.txt'.format(label), 'r') as top_file:
+        visualizeWords = [word.replace('\n', '') for word in top_file.readlines()]
+    visualizeIdx = []
+    mywords = []
+    for word in visualizeWords:
+        if word in tokens:
+             visualizeIdx.append(tokens[word])
+             mywords.append(word)
+    visualizeWords = mywords
+    visualizeIdx = visualizeIdx[:15]
+    visualizeWords = visualizeWords[:15]
+    visualizeVecs = wordVectors[visualizeIdx, :]
+    temp = (visualizeVecs - np.mean(visualizeVecs, axis=0))
+    covariance = 1.0 / len(visualizeIdx) * temp.T.dot(temp)
+    U, S, V = np.linalg.svd(covariance)
+    coord = temp.dot(U[:, 0:2])
+    for i in range(len(visualizeIdx)):
+        plt.text(coord[i, 0], coord[i, 1],get_display( arabic_reshaper.reshape('{}'.format(visualizeWords[i]))),
+                 bbox=dict(facecolor='green', alpha=0.1))
+
+    #get_display(arabic_reshaper.reshape(visualizeWords[i].decode('utf8')))
+    plt.xlim((np.min(coord[:, 0]), np.max(coord[:, 0])))
+    plt.ylim((np.min(coord[:, 1]), np.max(coord[:, 1])))
+
+    if not os.path.exists('reports/word2vec'):
+        os.mkdir('reports/word2vec')
+    print('saving ,',label)
+    plt.savefig('reports/word2vec/word_vectors_{}.png'.format(label))

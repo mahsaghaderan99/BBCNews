@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import os
 import random
 
 class BBCNews:
@@ -39,7 +38,6 @@ class BBCNews:
         revtokens += ["UNK"]
         tokenfreq["UNK"] = 1
         wordcount += 1
-
         self._tokens = tokens
         self._tokenfreq = tokenfreq
         self._wordcount = wordcount
@@ -53,7 +51,7 @@ class BBCNews:
         sentences = []
         with open(self.path + "/dataset_sentences_{}.txt".format(self.label), "r") as f:
             for line in f:
-                sentences.append(line)
+                sentences.append(line.split())
 
         self._sentences = sentences
         self._sentlengths = np.array([len(s) for s in sentences])
@@ -87,7 +85,6 @@ class BBCNews:
 
     def getRandomContext(self, C=5):
         allsent = self.allSentences()
-        print(allsent)
         sentID = random.randint(0, len(allsent) - 1)
         sent = allsent[sentID]
         wordID = random.randint(0, len(sent) - 1)
