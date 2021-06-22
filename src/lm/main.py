@@ -63,7 +63,10 @@ device = torch.device("cuda" if args.cuda else "cpu")
 ###############################################################################
 # Load data
 ###############################################################################
-corpus = data.Corpus('دانش')
+labels = ['ايران', 'هنر', 'ورزش', 'اقتصاد', 'دانش']
+# for label in labels:
+label = 'دانش'
+corpus = data.Corpus(label)
 
 def batchify(data, bsz):
     # Work out how cleanly we can divide the dataset into bsz parts.
@@ -208,8 +211,10 @@ try:
                                            val_loss, math.exp(val_loss)))
         print('-' * 89)
         # Save the model if the validation loss is the best we've seen so far.
+        if not os.path.exists('models/lm'):
+            os.mkdir('models/lm')
         if not best_val_loss or val_loss < best_val_loss:
-            with open(args.save, 'wb') as f:
+            with open('models/lm/model{}.pk'.format(label), 'wb') as f:
                 torch.save(model, f)
             best_val_loss = val_loss
         else:
