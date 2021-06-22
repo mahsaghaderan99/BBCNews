@@ -5,7 +5,7 @@ import yaml
 import matplotlib.pyplot as plt
 import arabic_reshaper
 from bidi.algorithm import get_display
-
+import os
 
 class Labels:
     def __init__(self, label):
@@ -192,9 +192,14 @@ class Statistics:
             for key in keys:
                 if key in checking_list:
                     top_ten.append(key)
-                    if len(top_ten) == 10:
+                    if len(top_ten) == 30:
                         break
             if show:
+                if not os.path.exists('reports/top_words') :
+                    os.mkdir('reports/top_words')
+                with open('reports/top_words/{}.txt'.format(field),'a') as ff:
+                    ff.writelines([key+'\n' for key in keys])
+
                 print("TOP 10", field)
                 print("keys", top_ten)
                 print("vals", [self.fields[field].words[word] for word in top_ten])
