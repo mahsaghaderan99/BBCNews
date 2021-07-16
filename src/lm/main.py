@@ -7,12 +7,12 @@ import torch.nn as nn
 import torch.onnx
 
 import data
-import model
+import lm_model
 
 parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 RNN/LSTM/GRU/Transformer Language Model')
 parser.add_argument('--data', type=str, default='data/wikitext-2',
                     help='location of the data corpus')
-parser.add_argument('--model', type=str, default='LSTM',
+parser.add_argument('--model', type=str, default='Transformer',
                     help='type of recurrent net (RNN_TANH, RNN_RELU, LSTM, GRU, Transformer)')
 parser.add_argument('--emsize', type=int, default=200,
                     help='size of word embeddings')
@@ -20,7 +20,7 @@ parser.add_argument('--nhid', type=int, default=200,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=2,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=20,
+parser.add_argument('--lr', type=float, default=5,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
@@ -38,6 +38,8 @@ parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
 parser.add_argument('--cuda', action='store_true',
                     help='use CUDA')
+parser.add_argument('--label', type=str, default='',
+                    help='Label of data')
 parser.add_argument('--log-interval', type=int, default=200, metavar='N',
                     help='report interval')
 parser.add_argument('--save', type=str, default='model.pt',
@@ -65,7 +67,7 @@ device = torch.device("cuda" if args.cuda else "cpu")
 ###############################################################################
 labels = ['ايران', 'هنر', 'ورزش', 'اقتصاد', 'دانش']
 # for label in labels:
-label = 'دانش'
+label = args.label
 corpus = data.Corpus(label)
 
 def batchify(data, bsz):
@@ -88,9 +90,9 @@ test_data = batchify(corpus.test, eval_batch_size)
 
 ntokens = len(corpus.dictionary)
 if args.model == 'Transformer':
-    model = model.TransformerModel(ntokens, args.emsize, args.nhead, args.nhid, args.nlayers, args.dropout).to(device)
+    model = lm_model.TransformerModel(ntokens, args.emsize, args.nhead, args.nhid, args.nlayers, args.dropout).to(device)
 else:
-    model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).to(device)
+    model = lm_model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.tied).to(device)
 
 criterion = nn.NLLLoss()
 
@@ -214,7 +216,7 @@ try:
         if not os.path.exists('models/lm'):
             os.mkdir('models/lm')
         if not best_val_loss or val_loss < best_val_loss:
-            with open('models/lm/model{}.pk'.format(label), 'wb') as f:
+            with open('models/lm/model{}_{}.pk'.format(label,args.model), 'wb') as f:
                 torch.save(model, f)
             best_val_loss = val_loss
         else:
@@ -225,7 +227,7 @@ except KeyboardInterrupt:
     print('Exiting from training early')
 
 # Load the best saved model.
-with open(args.save, 'rb') as f:
+with open('models/lm/model{}_{}.pk'.format(label,args.model), 'rb') as f:
     model = torch.load(f)
     # after load the rnn params are not a continuous chunk of memory
     # this makes them a continuous chunk, and will speed up forward pass

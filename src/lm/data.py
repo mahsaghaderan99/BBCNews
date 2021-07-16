@@ -82,10 +82,11 @@ class VocabEntry(object):
 class Corpus(object):
     def __init__(self, label):
         self.dictionary = self.load('models/tokenization/vocab_file_word.json')
-        self.base_path = 'data/splited/{}/sentences_{}_'.format(label, label)
-        self.train = self.tokenize(self.base_path+'train.txt')
-        self.valid = self.tokenize(self.base_path+'dev.txt')
-        self.test = self.tokenize(self.base_path+'test.txt')
+        self.base_path = 'data/splited/{}/sentences_{}'.format(label, label)
+        self.train = self.tokenize(self.base_path+'_train.txt')
+        self.valid = self.tokenize(self.base_path+'_dev.txt')
+        self.test = self.tokenize(self.base_path+'_test.txt')
+        self.all = self.tokenize(self.base_path+'.txt')
 
     def load(self, file_path):
         entry = json.load(open(file_path, 'r'))
