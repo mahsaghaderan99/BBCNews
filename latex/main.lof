@@ -8,5 +8,16 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2.1}{\ignorespaces Sub-words vocab example\relax }}{6}{figure.caption.9}%
 \addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces LSTM Architecture\relax }}{10}{figure.caption.10}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Perplexity LSTM language model, label = Science\relax }}{10}{figure.caption.11}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Generated Text LSTM language model, label = Science\relax }}{10}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces GRU Architecture\relax }}{11}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Perplexity GRU language model, label = Science\relax }}{11}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Generated Text GRU language model, label = Science\relax }}{12}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Perplexity Transformer language model, label = Science\relax }}{12}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Generated Text Transformer language model, label = Science\relax }}{12}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Generated Text Transformer language model, label = Iran\relax }}{13}{figure.caption.18}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Generated Text Transformer language model, label = Art\relax }}{14}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Generated Text Transformer language model, label = Science\relax }}{14}{figure.caption.20}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Generated Text Transformer language model, label = Economic\relax }}{14}{figure.caption.21}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Generated Text Transformer language model, label = Sport\relax }}{15}{figure.caption.22}%

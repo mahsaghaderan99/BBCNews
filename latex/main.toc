@@ -11,8 +11,14 @@
 \contentsline {chapter}{\numberline {2}Tokeniation}{5}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Sub-word Level}{5}{section.2.1}%
 \contentsline {section}{\numberline {2.2}Word Level}{6}{section.2.2}%
-\contentsline {chapter}{\numberline {3}Parsing}{9}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Language Model}{11}{chapter.4}%
-\contentsline {chapter}{Bibliography}{13}{chapter*.10}%
-\contentsline {chapter}{Appendices}{15}{section*.11}%
-\contentsline {chapter}{\numberline {A}Appendix Title}{17}{appendix.1.A}%
+\contentsline {chapter}{\numberline {3}Language Model}{9}{chapter.3}%
+\contentsline {section}{\numberline {3.1}LSTM}{9}{section.3.1}%
+\contentsline {section}{\numberline {3.2}GRU}{9}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Transformer}{12}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Temperature}{13}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Final Outputs}{13}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Iran}{13}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Art}{13}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Science}{14}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Economic}{14}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}Sport}{15}{subsection.3.5.5}%
