@@ -15,11 +15,11 @@ parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 Language Model'
 # Model parameters.
 parser.add_argument('--data', type=str, default='./data/wikitext-2',
                     help='location of the data corpus')
-parser.add_argument('--checkpoint', type=str, default='./model.pt',
+parser.add_argument('--checkpoint', type=str, default='models/lm/modelدانش.pk',
                     help='model checkpoint to use')
 parser.add_argument('--outf', type=str, default='generated.txt',
                     help='output file for generated text')
-parser.add_argument('--words', type=int, default='1000',
+parser.add_argument('--words', type=int, default='200',
                     help='number of words to generate')
 parser.add_argument('--seed', type=int, default=1111,
                     help='random seed')
@@ -45,8 +45,9 @@ if args.temperature < 1e-3:
 with open(args.checkpoint, 'rb') as f:
     model = torch.load(f).to(device)
 model.eval()
-
-corpus = data.Corpus(args.data)
+labels = ['ايران', 'هنر', 'ورزش', 'اقتصاد', 'دانش']
+label = 'دانش'
+corpus = data.Corpus(label)
 ntokens = len(corpus.dictionary)
 
 is_transformer_model = hasattr(model, 'model_type') and model.model_type == 'Transformer'
@@ -68,8 +69,7 @@ with open(args.outf, 'w') as outf:
                 word_weights = output.squeeze().div(args.temperature).exp().cpu()
                 word_idx = torch.multinomial(word_weights, 1)[0]
                 input.fill_(word_idx)
-
-            word = corpus.dictionary.idx2word[word_idx]
+            word = corpus.dictionary.id2word[word_idx.item()]
 
             outf.write(word + ('\n' if i % 20 == 19 else ' '))
 
