@@ -18,7 +18,7 @@ Another point is SentencePiece can discriminate between statrting token and not 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=10cm]{images/word2vec_subwordtockens}
+	\includegraphics[width=10cm]{images/word2vec_subwordtockens.png}
 	\caption{Sub-words vocab example}
 	\label{fig:word2vecsubword}
 \end{figure}
@@ -47,3 +47,12 @@ Same as previous experiment, data-set is divided into train and test set and 5 d
 \end{center}
 
 As it is illustrated in table \ref{tbl:token-unk}, number of <unk> token increase by vocab size reduction. the fewer <unk> token, the fewer information loss. On the other the larger vocab size leads into more amount of computaion for future task. As we saw it is a trade of between these to parameters, in my opinion best vocab size due to this corpus is \textbf{10000}. It has reasonable <unk> token and it may need less computation rather than 15000 vocab size.
+\newline
+After tokenizing corpus in word level, we can see <unk> tokens besides tokens which exist in vocabulary. In this project <unk> token id is equal to 3. Many <unk> token can be seen in tokenized validation set (Figure \ref{fig:unkrep}).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=15cm]{images/unkrep.png}
+	\caption{Tokenized Corpus}
+	\label{fig:unkrep}
+\end{figure}
