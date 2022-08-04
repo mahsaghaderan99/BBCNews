@@ -43,4 +43,4 @@ Persian BBC News website is crawled on May/16/2021. Generated CSV file is locate
 
 Different version of fulldocuments are available [here](documents).
 
-[Prpject Document](https://docs.google.com/document/d/1PBN1QmrI4QIE2bqm3R3kIKlj2fsblJLaVOc6nzjqGDM/edit?usp=sharing)
+[Project Document](https://docs.google.com/document/d/1PBN1QmrI4QIE2bqm3R3kIKlj2fsblJLaVOc6nzjqGDM/edit?usp=sharing)
