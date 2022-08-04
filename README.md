@@ -20,21 +20,18 @@ The first method is tokenizing words and subwords. In this method, the model loo
 On the contrary, the second method is just tokenizing words, this model looks for the most repeated words.
 
 ## Language Model 
-In this section the corpus is divided into three part, train set, dev set and test set. LanguageModel is trained on each label separately to evaluate capability of each model to generate specific news. Models are saved in ”models/lm” directory. Language models' artichecture are adopted from pytorch/examples project.
+In this section, the corpus is divided into three parts, train set, dev set and test set. LanguageModel is trained on each label separately to evaluate the capability of each model to generate specific news. Models are saved in the”models/lm” directory. Language models' artichecture are adopted from pytorch/examples project.
 
-Models are trained on GTX1070 GPU which training process is 10 time faster than a quadcore CPU.
+Models are trained on GTX1070 GPU which training process is 10 times faster than a quad-core CPU.
 
 ### Models:
-- **LSTM:**  The best perplexity record is 47 on ”Science” label. In this trial, there are many <unk> token in output generated text.
-- **GRU:**  LSTM and GRU have similar learning power as a evidence perplexity of GRU model on test set is 43, when label is ”Science”.
-As expected GRU model taining time is less than LSTM model. In this trial, again there are many <unk> token in output generated text.
-- **Transformer:** This model constructs of an Encoder̲ and Decoder̲. 
-  - Encoder consist Embedding layer.
-  - Decoder consists Linear layer. 
-  Test perplexity is 37.41, when label is ”Science” which is 3 score better than previous models. Number of <unk> token is decreased and there more    meaningful sentences are generated.
+- **LSTM:** The best perplexity record is 47 on the ”Science” label. In this trial, there are many tokens in output-generated text.
+- **GRU:**   LSTM and GRU have similar learning power as evidence perplexity of GRU model on the test set are 43, when the label is ”Science”. As expected GRU model training time is less than LSTM model. In this trial, again there are many tokens in output-generated text.
+- **Transformer:** This model constructs an Encoder̲ and Decoder̲.
+  - The encoder consists of an Embedding layer.
+  - Decoder consists Linear layer. Test perplexity is 37.41 when the label is ”Science” which is 3 scores better than previous models. The number of tokens is decreased and there more meaningful sentences are generated.
 
-In conclusion, LSTM and GRU both have almost similar learning power, but it is possible to access better results with transformer architecture.  
-
+In conclusion, LSTM and GRU both have almost similar learning power, but it is possible to access better results with transformer architecture.
 
 ## Finetuning LM 
 In this part ParsBert V3 is used as pre-trained Bert model. Due to hardware limitation train batch size is set to 4 and evaluation batch size is set
